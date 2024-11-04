@@ -231,8 +231,9 @@ jobs:
         ) &
         (
         git clone https://github.com/sirpdboy/luci-theme-kucat -b js --depth 1
-        git_clone https://github.com/blueberry-pie-11/luci-app-natmap lucinatmap && mv lucinatmap/{luci-app-natmap,natmap} ./;rm -rf lucinatmap
         git_clone https://github.com/QiuSimons/luci-app-daed-next daed1 && mvdir daed1
+        git_clone https://github.com/EkkoG/luci-app-natmap
+        git_clone https://github.com/EkkoG/openwrt-natmap
         git_clone https://github.com/sirpdboy/luci-app-netdata
         git_clone https://github.com/sirpdboy/luci-app-chatgpt-web
         git_clone https://github.com/sirpdboy/luci-app-eqosplus
@@ -333,6 +334,13 @@ jobs:
         git_clone https://github.com/Atomseek/luci-app-gxu-webconnect
         git_clone https://github.com/sbwml/luci-app-openai opai && mvdir opai
         # git_clone https://github.com/0x676e67/luci-app-wireguard-ui wireguardui && mvdir wireguardui
+        ) &
+        (
+        git_clone https://github.com/kiddin9/luci-app-syscontrol
+        git_clone https://github.com/bobbyunknown/luci-app-insomclash
+        git_clone https://github.com/muink/luci-app-ssrust
+        git_clone https://github.com/hudra0/qosmate
+        git_clone https://github.com/kiddin9/luci-app-qosmate
         ) &
         (
         git_sparse_clone master "https://github.com/QiuSimons/OpenWrt-Add" luci-app-irqbalance
