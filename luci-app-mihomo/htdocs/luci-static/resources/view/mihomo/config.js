@@ -48,20 +48,20 @@ return view.extend({
 
         o = s.option(form.Value, '_app_version', _('App Version'));
         o.readonly = true;
-        o.load = function (section_id) {
+        o.load = function () {
             return appVersion.trim();
         };
         o.write = function () { };
 
         o = s.option(form.Value, '_core_version', _('Core Version'));
         o.readonly = true;
-        o.load = function (section_id) {
+        o.load = function () {
             return coreVersion.trim();
         };
         o.write = function () { };
 
         o = s.option(form.DummyValue, '_core_status', _('Core Status'));
-        o.cfgvalue = function (section_id) {
+        o.cfgvalue = function () {
             return renderStatus(running);
         };
         poll.add(function () {
@@ -102,6 +102,10 @@ return view.extend({
         o = s.option(form.Flag, 'enabled', _('Enable'));
         o.rmempty = false;
 
+        o = s.option(form.Value, 'start_delay', _('Start Delay'));
+        o.datatype = 'uinteger';
+        o.placeholder = '0';
+
         o = s.option(form.Flag, 'scheduled_restart', _('Scheduled Restart'));
         o.rmempty = false;
 
@@ -115,11 +119,11 @@ return view.extend({
 
         for (const profile of profiles) {
             o.value('file:' + profile.name, _('File:') + profile.name);
-        }
+        };
 
         for (const subscription of subscriptions) {
             o.value('subscription:' + subscription['.name'], _('Subscription:') + subscription.name);
-        }
+        };
 
         o = s.option(form.FileUpload, 'upload_profile', _('Upload Profile'));
         o.root_directory = mihomo.profilesDir;
@@ -249,8 +253,20 @@ return view.extend({
         o.value('clash.meta');
         o.value('clash');
 
+        o = s.option(form.ListValue, 'prefer', _('Prefer'));
+        o.default = 'remote';
+        o.value('remote', _('Remote'));
+        o.value('local', _('Local'));
+
+        o = s.option(form.Button, 'update_subscription');
+        o.inputstyle = 'positive';
+        o.inputtitle = _('Update');
+        o.onclick = function (_, section_id) {
+            return mihomo.updateSubscription(section_id);
+        };
+
         s = m.section(form.NamedSection, 'mixin', 'mixin', _('Mixin Config'));
-    
+
         s.tab('general', _('General Config'));
 
         o = s.taboption('general', form.ListValue, 'log_level', '*' + ' ' + _('Log Level'));
@@ -260,7 +276,7 @@ return view.extend({
         o.value('info');
         o.value('debug');
 
-        o = s.taboption('general', form.ListValue, 'mode', _('Proxy Mode'));
+        o = s.taboption('general', form.ListValue, 'mode', _('Mode'));
         o.value('global', _('Global Mode'));
         o.value('rule', _('Rule Mode'));
         o.value('direct', _('Direct Mode'));
@@ -291,9 +307,9 @@ return view.extend({
 
         o = s.taboption('external_control', form.Value, 'ui_url', '*' + ' ' + _('UI Url'));
         o.rmempty = false;
-        o.value('https://mirror.ghproxy.com/https://github.com/MetaCubeX/metacubexd/archive/refs/heads/gh-pages.zip', 'MetaCubeXD')
-        o.value('https://mirror.ghproxy.com/https://github.com/MetaCubeX/Yacd-meta/archive/refs/heads/gh-pages.zip', 'YACD')
-        o.value('https://mirror.ghproxy.com/https://github.com/MetaCubeX/Razord-meta/archive/refs/heads/gh-pages.zip', 'Razord')
+        o.value('https://mirror.ghproxy.com/https://github.com/MetaCubeX/metacubexd/archive/refs/heads/gh-pages.zip', 'MetaCubeXD');
+        o.value('https://mirror.ghproxy.com/https://github.com/MetaCubeX/Yacd-meta/archive/refs/heads/gh-pages.zip', 'YACD');
+        o.value('https://mirror.ghproxy.com/https://github.com/MetaCubeX/Razord-meta/archive/refs/heads/gh-pages.zip', 'Razord');
 
         o = s.taboption('external_control', form.Value, 'api_port', '*' + ' ' + _('API Port'));
         o.datatype = 'port';
@@ -399,7 +415,7 @@ return view.extend({
         o.retain = true;
         o.depends({ 'dns_mode': 'fake-ip', 'fake_ip_filter': '1' });
 
-        o = s.taboption('dns', form.ListValue, 'fake_ip_filter_mode', _('Fake-IP Filter Mode'))
+        o = s.taboption('dns', form.ListValue, 'fake_ip_filter_mode', _('Fake-IP Filter Mode'));
         o.retain = true;
         o.value('blacklist', _('Block Mode'));
         o.value('whitelist', _('Allow Mode'));
@@ -511,7 +527,7 @@ return view.extend({
         o = s.taboption('geox', form.Flag, 'geox_auto_update', _('GeoX Auto Update'));
         o.rmempty = false;
 
-        o = s.taboption('geox', form.Value, 'geox_update_interval', _('GeoX Update Interval'), _('Hour'));
+        o = s.taboption('geox', form.Value, 'geox_update_interval', _('GeoX Update Interval'));
         o.datatype = 'uinteger';
         o.placeholder = '24';
         o.retain = true;

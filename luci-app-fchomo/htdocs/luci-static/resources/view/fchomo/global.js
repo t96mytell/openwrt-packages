@@ -104,7 +104,9 @@ return view.extend({
 			hm.getServiceStatus('mihomo-c'),
 			hm.getClashAPI('mihomo-c'),
 			hm.getServiceStatus('mihomo-s'),
-			hm.getClashAPI('mihomo-s')
+			hm.getClashAPI('mihomo-s'),
+			callResVersion('geoip').then((res) => { return res.version }),
+			callResVersion('geosite').then((res) => { return res.version })
 		]);
 	},
 
@@ -114,7 +116,9 @@ return view.extend({
 		    CisRunning = data[3],
 		    CclashAPI = data[4],
 		    SisRunning = data[5],
-		    SclashAPI = data[6];
+		    SclashAPI = data[6],
+		    res_ver_geoip = data[7],
+		    res_ver_geosite = data[8];
 
 		var dashboard_repo = uci.get(data[0], 'api', 'dashboard_repo');
 
@@ -198,6 +202,13 @@ return view.extend({
 		o = s.taboption('status', form.SectionValue, '_config', form.NamedSection, 'resources', 'fchomo', _('Resources management'));
 		ss = o.subsection;
 
+		if (!res_ver_geoip || !res_ver_geosite) {
+			so = ss.option(form.Button, '_upload_initia', _('Upload initial package'));
+			so.inputstyle = 'action';
+			so.inputtitle = _('Upload...');
+			so.onclick = L.bind(hm.uploadInitialPack, so);
+		}
+
 		so = ss.option(form.Flag, 'auto_update', _('Auto update'),
 			_('Auto update resources.'));
 		so.default = so.disabled;
@@ -259,6 +270,9 @@ return view.extend({
 		so = ss.option(form.DummyValue, '_geosite_version', _('GeoSite version'));
 		so.cfgvalue = function() { return renderResVersion.call(this, null, 'geosite') };
 
+		so = ss.option(form.DummyValue, '_asn_version', _('ASN version'));
+		so.cfgvalue = function() { return renderResVersion.call(this, null, 'asn') };
+
 		so = ss.option(form.DummyValue, '_china_ip4_version', _('China IPv4 list version'));
 		so.cfgvalue = function() { return renderResVersion.call(this, null, 'china_ip4') };
 
@@ -316,7 +330,7 @@ return view.extend({
 		so.placeholder = '30';
 		so.validate = L.bind(hm.validateTimeDuration, so);
 
-		so = ss.option(form.Value, 'keep_alive_idle', _('TCP-Keep-Alive idle'),
+		so = ss.option(form.Value, 'keep_alive_idle', _('TCP-Keep-Alive idle timeout'),
 			_('In seconds. <code>%s</code> will be used if empty.').format('600'));
 		so.placeholder = '600';
 		so.validate = L.bind(hm.validateTimeDuration, so);
@@ -433,11 +447,11 @@ return view.extend({
 
 		so = ss.option(form.Value, 'tls_cert_path', _('API TLS certificate path'));
 		so.datatype = 'file';
-		so.value('/etc/uhttpd.crt');
+		so.value('/etc/ssl/acme/example.crt');
 
 		so = ss.option(form.Value, 'tls_key_path', _('API TLS private key path'));
 		so.datatype = 'file';
-		so.value('/etc/uhttpd.key');
+		so.value('/etc/ssl/acme/example.key');
 		/* TLS END */
 
 		/* API START */
