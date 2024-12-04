@@ -364,7 +364,7 @@ jobs:
         git_sparse_clone openwrt-24.10 "https://github.com/openwrt/luci" applications/luci-app-aria2 \
         applications/luci-app-ddns applications/luci-app-acme applications/luci-app-package-manager \
         applications/luci-app-ksmbd applications/luci-app-samba4 applications/luci-app-watchcat applications/luci-app-upnp \
-        applications/luci-app-transmission modules/luci-base modules/luci-mod-network \
+        applications/luci-app-transmission applications/luci-app-filemanager modules/luci-base modules/luci-mod-network \
         modules/luci-mod-status modules/luci-mod-system
         ) &
 
@@ -447,6 +447,7 @@ jobs:
         -e "s/killall \([^-]+*\)/killall -3 \1/g" \
         `find \( -path "*/files/root/etc/init.d/*" -o -path "*/root/etc/init.d/*" -o -path "*/files/*.init" \) -type f` &
         wget https://github.com/xiechangan123/luci-i18n-xray-zh-cn/raw/main/po/zh-cn/xray.zh-cn.po -P luci-app-xray/po/zh_Hans/
+        wget https://github.com/sbwml/luci-app-filemanager/raw/refs/heads/main/po/zh_Hans/filemanager.po -P luci-app-filemanager/po/zh_Hans/
         (
         function latest() {
           (curl -gs -H 'Content-Type: application/json' \
@@ -484,8 +485,6 @@ jobs:
           if [ "$(grep "luci.mk" $pkg/Makefile)" ]; then
             sed -i '/\(PKG_VERSION\|PKG_RELEASE\):=/d' $pkg/Makefile
           fi
-          sed -i 's/"nas"/"system"/g' luci-app-fileassistant/luasrc/controller/fileassistant.lua
-          sed -i 's/admin\/nas/admin\/system/g' luci-app-fileassistant/htdocs/luci-static/resources/fileassistant/fb.js
           grep -q '"nas",' $pkg/luasrc/controller/*.lua && ! grep -q '_("NAS")' $pkg/luasrc/controller/*.lua &&
             sed -i 's/ index()/ index()\n\tentry({"admin", "nas"}, firstchild(), _("NAS") , 45).dependent = false/' $pkg/luasrc/controller/*.lua
         done
@@ -539,14 +538,14 @@ jobs:
         sed -i \
           -e 's?include \.\./\.\./\(lang\|devel\)?include $(TOPDIR)/feeds/packages/\1?' \
           -e "s/\(\(^\| \|	\)\(PKG_HASH\|PKG_MD5SUM\|PKG_MIRROR_HASH\|HASH\):=\).*/\1skip/" \
-          -e 's?include .*/luci.mk?include $(TOPDIR)/feeds/luci/luci.mk?' \
           -e 's/+ca-certificates/+ca-bundle/' \
           -e 's/php7/php8/g' \
           -e 's/+docker\( \|$\)/+docker +dockerd /g' \
-          -e 's/+iptables-zz-legacy\( \|$\)//g' \
-          -e 's/+ip6tables-zz-legacy\( \|$\)//g' \
           -e 's/URL:=@IMMORTALWRT/URL:=https:\/\/mirror2.immortalwrt.org\/sources/g' \
           */Makefile
+        sed -i \
+          -e 's? \.\./\.\./? $(TOPDIR)/feeds/luci/?' \
+          luci-*/Makefile
         ) &
         
         while [[ ! -f /tmp/ok ||  ! -f /tmp/ok2 ]]; do
