@@ -396,7 +396,7 @@ jobs:
         mv -n luciapp/* applications/; rm -rf luciapp
         git_sparse_clone master "https://github.com/immortalwrt/luci" applications/luci-app-filebrowser-go
 
-        for ipk in $(ls -d applications/!(luci-app-rclone|luci-app-filebrowser|luci-app-firewall)/); do
+        for ipk in $(ls -d applications/!(luci-app-rclone|luci-app-filebrowser)/); do
         	if [[ $(ls $ipk/po | wc -l) -gt 4 ]]; then
             rm -rf $ipk
         	fi
