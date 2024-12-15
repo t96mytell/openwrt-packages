@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: LuCI: upnp\n"
 "POT-Creation-Date: 2009-05-19 19:36+0200\n"
-"PO-Revision-Date: 2024-10-16 19:04+0000\n"
-"Last-Translator: Lorekin <lorekine@outlook.com>\n"
+"PO-Revision-Date: 2024-12-11 14:58+0000\n"
+"Last-Translator: st7105 <st7105@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/openwrt/"
 "luciapplicationsupnp/ru/>\n"
 "Language: ru\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 5.8-rc\n"
+"X-Generator: Weblate 5.9-dev\n"
 "Project-Info: Это технический перевод, не дословный. Главное-удобный русский "
 "интерфейс, все проверялось в графическом режиме, совместим с другими apps\n"
 
@@ -24,6 +24,8 @@ msgid ""
 "A 900s interval will result in %s notifications with the minimum max-age of "
 "1800s"
 msgstr ""
+"Интервал 900 сек. приведет к появлению %s уведомлений с минимальным "
+"максимальным возрастом 1800 сек."
 
 #: applications/luci-app-upnp/htdocs/luci-static/resources/view/upnp/upnp.js:205
 msgid ""
@@ -43,7 +45,7 @@ msgstr "Активные переадресации"
 
 #: applications/luci-app-upnp/htdocs/luci-static/resources/view/status/include/80_upnp.js:31
 msgid "Active UPnP IGD & PCP/NAT-PMP Port Maps"
-msgstr ""
+msgstr "Активные карты портов UPnP IGD и PCP/NAT-PMP"
 
 #: applications/luci-app-upnp/htdocs/luci-static/resources/view/upnp/upnp.js:126
 msgid "Advanced Settings"
@@ -78,7 +80,7 @@ msgstr "Адрес клиента"
 #: applications/luci-app-upnp/htdocs/luci-static/resources/view/status/include/80_upnp.js:43
 #: applications/luci-app-upnp/htdocs/luci-static/resources/view/upnp/upnp.js:90
 msgid "Client Name"
-msgstr ""
+msgstr "Имя клиента"
 
 #: applications/luci-app-upnp/htdocs/luci-static/resources/view/status/include/80_upnp.js:45
 #: applications/luci-app-upnp/htdocs/luci-static/resources/view/upnp/upnp.js:92
@@ -115,7 +117,7 @@ msgstr "Внутреннее соединение"
 
 #: applications/luci-app-upnp/htdocs/luci-static/resources/view/upnp/upnp.js:134
 msgid "Enable PCP/NAT-PMP protocols"
-msgstr ""
+msgstr "Включить протоколы PCP/NAT-PMP"
 
 #: applications/luci-app-upnp/htdocs/luci-static/resources/view/upnp/upnp.js:132
 msgid "Enable UPnP IGD protocol"
@@ -137,7 +139,7 @@ msgstr "Внешний порт"
 
 #: applications/luci-app-upnp/root/usr/share/rpcd/acl.d/luci-app-upnp.json:3
 msgid "Grant access to UPnP IGD & PCP/NAT-PMP"
-msgstr ""
+msgstr "Предоставить доступ к UPnP IGD и PCP/NAT-PMP"
 
 #: applications/luci-app-upnp/htdocs/luci-static/resources/view/upnp/upnp.js:168
 msgid "Notify interval"
@@ -158,15 +160,15 @@ msgstr "Добавлять дополнительную отладочную и�
 
 #: applications/luci-app-upnp/htdocs/luci-static/resources/view/upnp/upnp.js:181
 msgid "Report custom router web interface (presentation) URL"
-msgstr ""
+msgstr "URL-адрес веб-интерфейса (презентации) пользовательского маршрутизатора"
 
 #: applications/luci-app-upnp/htdocs/luci-static/resources/view/upnp/upnp.js:143
 msgid "Report maximum download speed in kByte/s"
-msgstr ""
+msgstr "Сообщите максимальную скорость загрузки в кБайт/с"
 
 #: applications/luci-app-upnp/htdocs/luci-static/resources/view/upnp/upnp.js:147
 msgid "Report maximum upload speed in kByte/s"
-msgstr ""
+msgstr "Сообщите максимальную скорость загрузки в кБайт/с"
 
 #: applications/luci-app-upnp/htdocs/luci-static/resources/view/upnp/upnp.js:194
 msgid "Report system instead of service uptime"
@@ -186,11 +188,11 @@ msgstr "Порт STUN"
 
 #: applications/luci-app-upnp/htdocs/luci-static/resources/view/upnp/upnp.js:204
 msgid "Service Access Control List"
-msgstr ""
+msgstr "Список контроля доступа к сервисам"
 
 #: applications/luci-app-upnp/htdocs/luci-static/resources/view/upnp/upnp.js:123
 msgid "Service Settings"
-msgstr ""
+msgstr "Настройки сервиса"
 
 #: applications/luci-app-upnp/htdocs/luci-static/resources/view/upnp/upnp.js:125
 msgid "Service Setup"
@@ -198,15 +200,15 @@ msgstr "Основные Настройки"
 
 #: applications/luci-app-upnp/htdocs/luci-static/resources/view/upnp/upnp.js:201
 msgid "Service lease file"
-msgstr ""
+msgstr "Файл аренды сервиса"
 
 #: applications/luci-app-upnp/htdocs/luci-static/resources/view/upnp/upnp.js:129
 msgid "Start autonomous port mapping service"
-msgstr ""
+msgstr "Запуск службы сопоставления автономных портов"
 
 #: applications/luci-app-upnp/htdocs/luci-static/resources/view/upnp/upnp.js:128
 msgid "Start service"
-msgstr ""
+msgstr "Запустить сервис"
 
 #: applications/luci-app-upnp/htdocs/luci-static/resources/view/upnp/upnp.js:80
 msgctxt ""
@@ -229,6 +231,8 @@ msgstr "Активные переадресации отсутствуют."
 msgid ""
 "To detect the public IPv4 address for unrestricted full-cone/one-to-one NATs"
 msgstr ""
+"Чтобы определить публичный IPv4-адрес для неограниченных NAT с полным "
+"конусом/одним к одному"
 
 #: applications/luci-app-upnp/root/usr/share/luci/menu.d/luci-app-upnp.json:3
 msgid "UPnP IGD & PCP"

@@ -40,7 +40,7 @@ $dash_link = $neko_cfg['ctrl_host'] . ':' . $neko_cfg['ctrl_port'] . '/ui/dashbo
         <a href="./" class="col btn btn-lg">🏠 首页</a>
         <a href="#" class="col btn btn-lg">📊 面板</a>
         <a href="./configs.php" class="col btn btn-lg">⚙️ 配置</a>
-        <a href="/nekobox/mon.php" class="col btn btn-lg d-flex align-items-center justify-content-center">📦 订阅</a> 
+        <a href="./singbox.php" class="col btn btn-lg">📦 订阅</a> 
         <a href="./settings.php" class="col btn btn-lg">🛠️ 设定</a>
     </div>
 <div class="container text-left p-3">
@@ -52,9 +52,9 @@ $dash_link = $neko_cfg['ctrl_host'] . ':' . $neko_cfg['ctrl_port'] . '/ui/dashbo
                 <tbody>
                     <tr class="text-center d-flex flex-wrap justify-content-center">
                         <td><a class="btn btn-info btn-sm text-white" target="_blank" href="http://<?php echo $yacd_link; ?>">YACD-META 面板</a></td>
-                        <td><a class="btn btn-info btn-sm text-white" target="_blank" href="http://<?php echo $zash_link; ?>">ZASHBOARD 面板</a></td>
                         <td><a class="btn btn-info btn-sm text-white" target="_blank" href="http://<?php echo $dash_link; ?>">DASHBOARD 面板</a></td>
                         <td><a class="btn btn-info btn-sm text-white" target="_blank" href="http://<?php echo $meta_link; ?>">METACUBEXD 面板</a></td>
+                        <td><a class="btn btn-info btn-sm text-white" target="_blank" href="http://<?php echo $zash_link; ?>">ZASHBOARD 面板</a></td>
                     </tr>
                 </tbody>
             </table>
