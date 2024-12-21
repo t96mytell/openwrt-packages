@@ -1,0 +1,50 @@
+name: Sync with Upstream
+ 
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+ 
+jobs:
+  pull-upstream:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+        with:
+          ref: main
+ 
+      - name: Pull Upstream Changes
+        uses: actions/github-script@v5
+        with:
+          script: |
+            const { getOctokit } = require("@actions/github");
+            const github = getOctokit(process.env.GITHUB_TOKEN);
+            const upstream = "kwrt-packages";
+            const branch = "main";
+ 
+            async function fetchUpstreamCommits(repo, ref) {
+              const { data: commits } = await github.rest.repos.compareCommits({
+                owner: "kiddin9",
+                repo: repo,
+                base: ref,
+              });
+              return commits;
+            }
+ 
+            async function pullUpstreamChanges(repo, ref) {
+              const commits = await fetchUpstreamCommits(repo, ref);
+              if (commits.ahead_by > 0) {
+                console.log(`Found ${commits.ahead_by} upstream commits.`);
+                await github.rest.pulls.create({
+                  owner: "t96mytell",
+                  repo: "openwrt_23.05_packages",
+                  title: `Update ${branch} with upstream changes`,
+                  head: `${upstream}:${branch}`,
+                  base: branch,
+                });
+              } else {
+                console.log("No upstream changes to pull.");
+              }
+            }
+ 
+            pullUpstreamChanges(process.env.GITHUB_REPOSITORY, branch);
