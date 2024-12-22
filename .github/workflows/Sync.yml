@@ -17,8 +17,8 @@ jobs:
 
       - name: Set up Git
         run: |
-          git config --global user.name 't96mytell'
-          git config --global user.email 'zgnczmy@gmail.com'
+          git config --global user.name 'mytellclub-bot'
+          git config --global user.email 'mytellclub@gmail.com'
 
       - name: Add upstream remote
         run: git remote add upstream https://github.com/kiddin9/kwrt-packages.git
@@ -41,6 +41,6 @@ jobs:
 
       - name: Push changes
         run: |
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+          git remote set-url origin https://x-access-token:${{ secrets.BOT_TOKEN }}@github.com/${{ github.repository }}.git
           git push origin main
 
