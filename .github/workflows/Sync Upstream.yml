@@ -16,5 +16,5 @@ jobs:
       - name: Syncing with upstream
         uses: cpina/github-actions-sync-fork@master
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
           UPSTREAM_REMOTE_URL: 'https://github.com/original-owner-username/original-repository.git'
