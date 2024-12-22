@@ -5,16 +5,26 @@ on:
     - cron: '*/30 * * * *'
  
 jobs:
-  sync:
+  pull-upstream:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout Repo
         uses: actions/checkout@v2
         with:
-          ref: main
+          ref: 'main'
  
-      - name: Syncing with upstream
-        uses: cpina/github-actions-sync-fork@master
+      - name: Sync Upstream
+        uses: cviebrock/github-actions-setup-gitea@master
         with:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
-          UPSTREAM_REMOTE_URL: 'https://github.com/original-owner-username/original-repository.git'
+          version: '2.20.1'
+ 
+      - name: Fetch Upstream
+        run: |
+          git fetch upstream
+      - name: Rebase Upstream
+        run: |
+          git rebase upstream/main
+      - name: Push Changes
+        uses: ad-m/github-push-action@master
+        with:
+          branch: main
