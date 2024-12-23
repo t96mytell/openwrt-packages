@@ -41,7 +41,7 @@ jobs:
               cd ..
             else
               echo "Cloning $repo_name..."
-              git clone "https://x-access-token:${{ secrets.BOT_TOKEN }}@$repo"
+              git clone "https://x-access-token:${{ secrets.BOT_TOKEN }}@${repo#https://}"
             fi
           done
 
@@ -52,7 +52,7 @@ jobs:
             cd "$target_repo_name"
             git pull origin main
           else
-            git clone "https://x-access-token:${{ secrets.BOT_TOKEN }}@$target_repo"
+            git clone "https://x-access-token:${{ secrets.BOT_TOKEN }}@${target_repo#https://}"
             cd "$target_repo_name"
           fi
 
