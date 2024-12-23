@@ -43,8 +43,8 @@ jobs:
         run: |
           # 放弃上游的更改，保留本地更改
           git merge --strategy=ours upstream1/main
-          git commit -m "Merge upstream changes and discard conflicting changes"
         #  git merge --strategy=ours upstream2/main
+          git commit -m "Merge upstream changes and discard conflicting changes"
 
       - name: Push changes
         env:
@@ -57,7 +57,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Delete old workflow runs
-        uses: actions/delete-workflow-runs@v1
+        uses: Mattraks/delete-workflow-runs@v1
         with:
           retention_days: 3  # 保留三天内的 workflow 记录
-          token: ${{ secrets.BOT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.BOT_TOKEN }}
