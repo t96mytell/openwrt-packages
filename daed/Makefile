@@ -5,12 +5,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=daed
-PKG_VERSION:=0.8.0
-PKG_RELEASE:=4
+PKG_VERSION:=0.9.0
+PKG_RELEASE:=6
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/daeuniverse/daed.git
-PKG_SOURCE_VERSION:=b44c472ffc1138bfc29f64b52747da3e0e7cb427
+PKG_SOURCE_VERSION:=68d13a3ccb7ccf47beac55412f7c5bdd61976d12
 PKG_MIRROR_HASH:=skip
 
 PKG_LICENSE:=AGPL-3.0-only MIT
@@ -103,7 +103,7 @@ endef
 
 DAE_CFLAGS:= \
 	-O2 -Wall -Werror \
-	-DMAX_MATCH_SET_LEN=64 \
+	-DMAX_MATCH_SET_LEN=1024 \
 	-I$(BPF_HEADERS_DIR)/tools/lib \
 	-I$(BPF_HEADERS_DIR)/arch/$(BPF_KARCH)/include/asm/mach-generic
 
