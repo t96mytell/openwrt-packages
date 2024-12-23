@@ -1,38 +1,38 @@
 name: Auto Comment on PR
-​
+
 on:
   pull_request_target:
-    types: [ opened, synchronize ]
-    branches: [ main ]
-​
+    types: [opened, synchronize]
+    branches: [main]
+
 jobs:
   comment:
-    runs-on: ubuntu-latest
-​
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-​
-      - name: Create a comment
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.BOT_TOKEN  }}
-          script: |
-            const { owner, repo, number: issue_number } = context.issue;
-            
-            // Get PR creator's username
-            const prCreator = context.payload.pull_request.user.login;
-            
-            const commentBody = `🚀Thanks for your contribution 🎉 @${prCreator}. CodeRabbit(AI) will review your code first 🔥`;
-            github.rest.issues.createComment({
-              owner,
-              repo,
-              issue_number,
-              body: commentBody
-            });
-            github.rest.issues.addLabels({
-                owner,
-                repo,
-                issue_number,
-                labels: ['ready to review','waiting-review','Ai ready to review']
-              });
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create a comment
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.BOT_TOKEN }}
+          script: |
+            const { owner, repo, number: issue_number } = context.issue;
+            
+            // Get PR creator's username
+            const prCreator = context.payload.pull_request.user.login;
+            
+            const commentBody = `🚀Thanks for your contribution 🎉 @${prCreator}. CodeRabbit(AI) will review your code first 🔥`;
+            github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number,
+              body: commentBody
+            });
+            github.rest.issues.addLabels({
+              owner,
+              repo,
+              issue_number,
+              labels: ['ready to review', 'waiting-review', 'Ai ready to review']
+            });
