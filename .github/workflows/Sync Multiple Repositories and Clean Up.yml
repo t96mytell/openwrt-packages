@@ -1,0 +1,96 @@
+name: Sync Multiple Repositories and Clean Up
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'  # 根据需要调整频率
+  push:
+    branches:
+      - main
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: main
+
+      - name: Set up Git
+        run: |
+          git config --global user.name 'mytellclub-bot'
+          git config --global user.email 'mytellclub@gmail.com'
+
+      - name: Sync Repositories
+        run: |
+          # 仓库列表，限制为 N 个
+          repos=(
+            "https://github.com/kiddin9/kwrt-packages.git"
+          )
+
+          # 克隆或拉取每个仓库
+          for repo in "${repos[@]}"; do
+            repo_name=$(basename "$repo" .git)
+            if [ -d "$repo_name" ]; then
+              echo "Updating $repo_name..."
+              cd "$repo_name"
+              git pull origin main
+              cd ..
+            else
+              echo "Cloning $repo_name..."
+              git clone "$repo"
+            fi
+          done
+
+          # 同步所有仓库到一个目标仓库
+          target_repo="https://github.com/t96mytell/openwrt-packages-23.05.git"  # 替换为目标仓库
+          target_repo_name=$(basename "$target_repo" .git)
+          if [ -d "$target_repo_name" ]; then
+            cd "$target_repo_name"
+            git pull origin main
+          else
+            git clone "$target_repo"
+            cd "$target_repo_name"
+          fi
+
+          for repo in "${repos[@]}"; do
+            repo_name=$(basename "$repo" .git)
+            cd "../$repo_name"
+            git pull origin main
+            cd "../$target_repo_name"
+            git remote add "$repo_name" "../$repo_name"
+            git fetch "$repo_name"
+            git rebase "$repo_name/main" || (git rebase --abort && git reset --hard HEAD)
+            git remote remove "$repo_name"
+          done
+
+          git push origin main --force
+        env:
+          GITHUB_TOKEN: ${{ secrets.BOT_TOKEN }}
+
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cleanup Old Workflow Runs
+        uses: actions/github-script@v3
+        with:
+          script: |
+            const workflows = await github.actions.listWorkflowRunsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100,
+              status: 'completed'
+            });
+            const now = new Date();
+            workflows.data.workflow_runs.forEach(run => {
+              const runDate = new Date(run.created_at);
+              const diffDays = (now - runDate) / (1000 * 60 * 60 * 24);
+              if (diffDays > 3) {
+                github.actions.deleteWorkflowRun({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  run_id: run.id
+                });
+              }
+            });
