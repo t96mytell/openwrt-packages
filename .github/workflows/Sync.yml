@@ -36,7 +36,7 @@ jobs:
           git merge upstream1/main --no-commit --no-ff || true
 
      # - name: Merge upstream changes (upstream2)
-        run: |
+     #   run: |
           git merge upstream2/main --no-commit --no-ff || true
 
       - name: Handle merge conflicts
