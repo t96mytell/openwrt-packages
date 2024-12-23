@@ -43,9 +43,9 @@ jobs:
         run: |
           # 放弃上游的更改，保留本地更改
           git merge --strategy=ours upstream1/main
-        #  git merge --strategy=ours upstream2/main
           git commit -m "Merge upstream changes and discard conflicting changes"
-
+        #  git merge --strategy=ours upstream2/main
+          
       - name: Push changes
         env:
           GITHUB_TOKEN: ${{ secrets.BOT_TOKEN }}
