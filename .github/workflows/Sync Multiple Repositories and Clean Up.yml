@@ -17,11 +17,6 @@ jobs:
         with:
           ref: main
 
-      - name: Set up Git
-        run: |
-          git config --global user.name 'mytellclub-bot'
-          git config --global user.email 'mytellclub@gmail.com'
-
       - name: Sync Repositories
         run: |
           # 仓库列表，限制为 N 个
@@ -61,13 +56,13 @@ jobs:
             cd "../$target_repo_name"
             git remote add "$repo_name" "../$repo_name"
             git fetch "$repo_name"
-            git rebase "$repo_name/main" || (git rebase --abort && git reset --hard HEAD)
+            git rebase "$repo_name/main" || (git rebase --abort && git merge --strategy=ours "$repo_name/main)
             git remote remove "$repo_name"
           done
 
           git push origin main --force
         env:
-          GITHUB_TOKEN: ${{ secrets.BOT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   cleanup:
     runs-on: ubuntu-latest
