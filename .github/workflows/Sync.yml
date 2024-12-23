@@ -1,4 +1,4 @@
-name: Sync Upstream Repo
+name: Sync Multiple Repos and Clean Up
 
 on:
   schedule:
@@ -20,27 +20,43 @@ jobs:
           git config --global user.name 'mytellclub-bot'
           git config --global user.email 'mytellclub@gmail.com'
 
-      - name: Add upstream remote
-        run: git remote add upstream https://github.com/kiddin9/kwrt-packages.git
+      - name: Add upstream remotes
+        run: |
+          git remote add upstream1 https://github.com/kiddin9/kwrt-packages.git
+        #  git remote add upstream2 https://github.com/上游仓库2.git
 
       - name: Fetch upstream changes
-        run: git fetch upstream
+        run: |
+          git fetch upstream1
+        #  git fetch upstream2
 
-      - name: Merge upstream changes
-        id: merge
+      - name: Merge upstream changes (upstream1)
         run: |
           git checkout main
-          git merge upstream/main || true
+          git merge upstream1/main --no-commit --no-ff || true
+
+     # - name: Merge upstream changes (upstream2)
+        run: |
+          git merge upstream2/main --no-commit --no-ff || true
 
       - name: Handle merge conflicts
-        if: failure() # If the merge failed due to conflicts
+        if: failure() # 如果合并因冲突而失败
         run: |
-          # Handle conflicts here, such as keeping local changes
-          git merge --strategy=ours upstream/main
-          git commit -m "Merge upstream changes and retain local changes"
+          # 放弃上游的更改，保留本地更改
+          git merge --strategy=ours upstream1/main
+        #  git merge --strategy=ours upstream2/main
+          git commit -m "Merge upstream changes and discard conflicting changes"
 
       - name: Push changes
         run: |
           git remote set-url origin https://x-access-token:${{ secrets.BOT_TOKEN }}@github.com/${{ github.repository }}.git
           git push origin main
 
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete old workflow runs
+        uses: actions/delete-workflow-runs@v1
+        with:
+          retention_days: 3  # 保留三天内的 workflow 记录
+          token: ${{ secrets.BOT_TOKEN }}
