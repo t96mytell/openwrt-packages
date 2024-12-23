@@ -2,7 +2,7 @@ name: Sync Multiple Repositories and Clean Up
 
 on:
   schedule:
-    - cron: '*/30 * * * *'  # 根据需要调整频率
+    - cron: '*/30 * * * *'  # 每半小时运行一次，根据需要调整频率
   push:
     branches:
       - main
@@ -19,7 +19,9 @@ jobs:
 
       - name: Sync Repositories
         run: |
-          # 仓库列表，限制为 N 个
+          set -e  # 遇到任何错误立即退出
+          
+          # 仓库列表，限制为一个
           repos=(
             "https://github.com/kiddin9/kwrt-packages.git"
           )
@@ -39,7 +41,7 @@ jobs:
           done
 
           # 同步所有仓库到一个目标仓库
-          target_repo="https://github.com/t96mytell/openwrt-packages-23.05.git"  # 替换为目标仓库
+          target_repo="https://github.com/t96mytell/openwrt-packages-23.05.git"  # 替换为你的目标仓库
           target_repo_name=$(basename "$target_repo" .git)
           if [ -d "$target_repo_name" ]; then
             cd "$target_repo_name"
@@ -56,7 +58,7 @@ jobs:
             cd "../$target_repo_name"
             git remote add "$repo_name" "../$repo_name"
             git fetch "$repo_name"
-            git rebase "$repo_name/main" || (git rebase --abort && git merge --strategy=ours "$repo_name/main)
+            git rebase "$repo_name/main" || (git rebase --abort && git merge --strategy=ours "$repo_name/main")
             git remote remove "$repo_name"
           done
 
@@ -68,24 +70,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Cleanup Old Workflow Runs
-        uses: actions/github-script@v3
+        uses: Mattraks/delete-workflow-runs@v1
         with:
-          script: |
-            const workflows = await github.actions.listWorkflowRunsForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              per_page: 100,
-              status: 'completed'
-            });
-            const now = new Date();
-            workflows.data.workflow_runs.forEach(run => {
-              const runDate = new Date(run.created_at);
-              const diffDays = (now - runDate) / (1000 * 60 * 60 * 24);
-              if (diffDays > 3) {
-                github.actions.deleteWorkflowRun({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  run_id: run.id
-                });
-              }
-            });
+          retention_days: 3  # 保留三天内的 workflow 记录
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
