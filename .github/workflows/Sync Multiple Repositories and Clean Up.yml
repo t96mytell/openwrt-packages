@@ -19,8 +19,8 @@ jobs:
 
       - name: Set up Git
         run: |
-          git config --global user.name "mytellclub-bot"
-          git config --global user.email "mytellclub@gmail.com"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Sync Repositories
         run: |
@@ -41,18 +41,18 @@ jobs:
               cd ..
             else
               echo "Cloning $repo_name..."
-              git clone "https://x-access-token:${{ secrets.BOT_TOKEN }}@${repo#https://}"
+              git clone "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@${repo#https://}"
             fi
           done
 
           # 同步所有仓库到一个目标仓库
-          target_repo="https://github.com/t96mytell/openwrt-packages-23.05.git"  # 替换为你的目标仓库
+          target_repo="https://github.com/t96mytell/openwrt-packages-23.05.git"  # 替换为目标仓库
           target_repo_name=$(basename "$target_repo" .git)
           if [ -d "$target_repo_name" ]; then
             cd "$target_repo_name"
             git pull origin main
           else
-            git clone "https://x-access-token:${{ secrets.BOT_TOKEN }}@${target_repo#https://}"
+            git clone "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@${target_repo#https://}"
             cd "$target_repo_name"
           fi
 
@@ -69,7 +69,7 @@ jobs:
 
           git push origin main --force
         env:
-          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   cleanup:
     runs-on: ubuntu-latest
@@ -78,4 +78,4 @@ jobs:
         uses: Mattraks/delete-workflow-runs@v1
         with:
           retention_days: 3  # 保留三天内的 workflow 记录
-          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
