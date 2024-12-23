@@ -19,7 +19,7 @@ jobs:
         run: |
           git config --global user.name 'mytellclub-bot'
           git config --global user.email 'mytellclub@gmail.com'
-      
+
       - name: Add upstream remotes
         run: |
           git remote add upstream1 https://github.com/kiddin9/kwrt-packages.git
@@ -34,24 +34,25 @@ jobs:
         run: |
           git checkout main
           git merge upstream1/main --no-commit --no-ff || true
-      
      # - name: Merge upstream changes (upstream2)
      #   run: |
      #     git merge upstream2/main --no-commit --no-ff || true
 
       - name: Handle merge conflicts
-        if: ${{ failure() }} # 如果合并因冲突而失败
+        if: ${{ failure() }}  # 如果合并因冲突而失败
         run: |
           # 放弃上游的更改，保留本地更改
           git merge --strategy=ours upstream1/main
-        #  git merge --strategy=ours upstream2/main
           git commit -m "Merge upstream changes and discard conflicting changes"
+        #  git merge --strategy=ours upstream2/main
 
       - name: Push changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.BOT_TOKEN }}
         run: |
           git remote set-url origin https://x-access-token:${{ secrets.BOT_TOKEN }}@github.com/${{ github.repository }}.git
           git push origin main
-  
+
   cleanup:
     runs-on: ubuntu-latest
     steps:
