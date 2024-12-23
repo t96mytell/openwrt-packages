@@ -47,8 +47,6 @@ jobs:
         #  git merge --strategy=ours upstream2/main
           
       - name: Push changes
-        env:
-          GITHUB_TOKEN: ${{ secrets.BOT_TOKEN }}
         run: |
           git remote set-url origin https://x-access-token:${{ secrets.BOT_TOKEN }}@github.com/${{ github.repository }}.git
           git push origin main
@@ -60,4 +58,4 @@ jobs:
         uses: Mattraks/delete-workflow-runs@v1
         with:
           retention_days: 3  # 保留三天内的 workflow 记录
-          GITHUB_TOKEN: ${{ secrets.BOT_TOKEN }}
+          token: ${{ secrets.BOT_TOKEN }}
