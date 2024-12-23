@@ -17,11 +17,16 @@ jobs:
         with:
           ref: main
 
+      - name: Set up Git
+        run: |
+          git config --global user.name "mytellclub-bot"
+          git config --global user.email "mytellclub@gmail.com"
+
       - name: Sync Repositories
         run: |
           set -e  # 遇到任何错误立即退出
           
-          # 仓库列表，限制为一个
+          # 仓库列表
           repos=(
             "https://github.com/kiddin9/kwrt-packages.git"
           )
@@ -36,7 +41,7 @@ jobs:
               cd ..
             else
               echo "Cloning $repo_name..."
-              git clone "$repo"
+              git clone "https://x-access-token:${{ secrets.BOT_TOKEN }}@$repo"
             fi
           done
 
@@ -47,7 +52,7 @@ jobs:
             cd "$target_repo_name"
             git pull origin main
           else
-            git clone "$target_repo"
+            git clone "https://x-access-token:${{ secrets.BOT_TOKEN }}@$target_repo"
             cd "$target_repo_name"
           fi
 
@@ -64,7 +69,7 @@ jobs:
 
           git push origin main --force
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
 
   cleanup:
     runs-on: ubuntu-latest
@@ -73,4 +78,4 @@ jobs:
         uses: Mattraks/delete-workflow-runs@v1
         with:
           retention_days: 3  # 保留三天内的 workflow 记录
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
