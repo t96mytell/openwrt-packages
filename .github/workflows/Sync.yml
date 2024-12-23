@@ -37,7 +37,7 @@ jobs:
 
      # - name: Merge upstream changes (upstream2)
      #   run: |
-          git merge upstream2/main --no-commit --no-ff || true
+     #     git merge upstream2/main --no-commit --no-ff || true
 
       - name: Handle merge conflicts
         if: failure() # 如果合并因冲突而失败
