@@ -31,7 +31,7 @@ jobs:
           # 仓库列表
           repos=(
             "github.com/kiddin9/kwrt-packages.git"
-            "github.com/Siriling/5G-Modem-Support.git:fibocom_MHI"
+           # "github.com/Siriling/5G-Modem-Support.git:fibocom_MHI"
           )
 
           # 克隆或拉取每个仓库
@@ -95,7 +95,6 @@ jobs:
             fi
           done
 
-          git commit -m "同步上游仓库的更改"
           git push origin main --force
 
   cleanup:
