@@ -23,6 +23,8 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Sync Repositories
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -e  # 遇到任何错误立即退出
 
@@ -46,8 +48,7 @@ jobs:
               cd ..
             else
               echo "Cloning $repo_name..."
-              repo_clone_url="${repo_url/https:\/\//https:\/\/x-access-token:${{ secrets.GITHUB_TOKEN }}@}"
-              git clone "$repo_clone_url" "$repo_name"
+              git clone "https://${{ secrets.GITHUB_TOKEN }}@${repo_url#https://}"
               cd "$repo_name"
               if [ -n "$repo_path" ]; then
                 git sparse-checkout init --cone
@@ -65,8 +66,7 @@ jobs:
             cd "$target_repo_name"
             git pull origin main
           else
-            repo_clone_url="${target_repo/https:\/\//https:\/\/x-access-token:${{ secrets.GITHUB_TOKEN }}@}"
-            git clone "$repo_clone_url" "$target_repo_name"
+            git clone "https://${{ secrets.GITHUB_TOKEN }}@${target_repo#https://}"
             cd "$target_repo_name"
           fi
 
@@ -93,8 +93,6 @@ jobs:
 
           git commit -m "同步上游仓库的更改"
           git push origin main --force
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   cleanup:
     runs-on: ubuntu-latest
