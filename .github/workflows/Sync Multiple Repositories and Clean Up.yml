@@ -53,6 +53,8 @@ jobs:
                 git sparse-checkout set "$repo_path"
                 git pull origin main
                 cd ..
+              else
+                cd ..
               fi
             fi
           done
