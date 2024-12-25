@@ -48,7 +48,9 @@ jobs:
               cd ..
             else
               echo "Cloning $repo_name..."
-              git clone "https://${{ secrets.GITHUB_TOKEN }}@${repo_url#https://}"
+              # 处理 URL，确保格式正确
+              access_repo_url="https://${{ secrets.GITHUB_TOKEN }}@github.com/${repo_url#https://github.com/}"
+              git clone "$access_repo_url" "$repo_name"
               cd "$repo_name"
               if [ -n "$repo_path" ]; then
                 git sparse-checkout init --cone
@@ -66,7 +68,8 @@ jobs:
             cd "$target_repo_name"
             git pull origin main
           else
-            git clone "https://${{ secrets.GITHUB_TOKEN }}@${target_repo#https://}"
+            access_target_repo_url="https://${{ secrets.GITHUB_TOKEN }}@github.com/${target_repo#https://github.com/}"
+            git clone "$access_target_repo_url" "$target_repo_name"
             cd "$target_repo_name"
           fi
 
