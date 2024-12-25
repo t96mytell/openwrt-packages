@@ -49,7 +49,7 @@ jobs:
             else
               echo "Cloning $repo_name..."
               # 处理 URL，确保格式正确
-              access_repo_url="https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${repo_url#https://github.com/}"
+              access_repo_url="https://x-access-token:${{ secrets.GITHUB_TOKEN }}@${repo_url#https://}"
               git clone "$access_repo_url" "$repo_name"
               cd "$repo_name"
               if [ -n "$repo_path" ]; then
@@ -68,7 +68,7 @@ jobs:
             cd "$target_repo_name"
             git pull origin main
           else
-            access_target_repo_url="https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${target_repo#https://github.com/}"
+            access_target_repo_url="https://x-access-token:${{ secrets.GITHUB_TOKEN }}@${target_repo#https://}"
             git clone "$access_target_repo_url" "$target_repo_name"
             cd "$target_repo_name"
           fi
