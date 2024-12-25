@@ -46,16 +46,14 @@ jobs:
               cd ..
             else
               echo "Cloning $repo_name..."
-              git clone "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@${repo_url#https://}"
+              git clone "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@${repo_url#https://github.com/}" "$repo_name"
               cd "$repo_name"
               if [ -n "$repo_path" ]; then
                 git sparse-checkout init --cone
                 git sparse-checkout set "$repo_path"
                 git pull origin main
-                cd ..
-              else
-                cd ..
               fi
+              cd ..
             fi
           done
 
@@ -66,7 +64,7 @@ jobs:
             cd "$target_repo_name"
             git pull origin main
           else
-            git clone "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@${target_repo#https://}"
+            git clone "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@${target_repo#https://github.com/}" "$target_repo_name"
             cd "$target_repo_name"
           fi
 
