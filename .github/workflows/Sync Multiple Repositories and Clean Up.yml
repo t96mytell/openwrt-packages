@@ -46,7 +46,7 @@ jobs:
               cd ..
             else
               echo "Cloning $repo_name..."
-              repo_clone_url="https://x-access-token:${{ secrets.GITHUB_TOKEN }}@${repo_url#https://github.com/}"
+              repo_clone_url="${repo_url/https:\/\//https:\/\/x-access-token:${{ secrets.GITHUB_TOKEN }}@}"
               git clone "$repo_clone_url" "$repo_name"
               cd "$repo_name"
               if [ -n "$repo_path" ]; then
@@ -65,7 +65,7 @@ jobs:
             cd "$target_repo_name"
             git pull origin main
           else
-            repo_clone_url="https://x-access-token:${{ secrets.GITHUB_TOKEN }}@${target_repo#https://github.com/}"
+            repo_clone_url="${target_repo/https:\/\//https:\/\/x-access-token:${{ secrets.GITHUB_TOKEN }}@}"
             git clone "$repo_clone_url" "$target_repo_name"
             cd "$target_repo_name"
           fi
