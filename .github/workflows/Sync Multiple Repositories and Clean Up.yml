@@ -30,8 +30,8 @@ jobs:
 
           # 仓库列表
           repos=(
-            "https://github.com/kiddin9/kwrt-packages.git"
-            "https://github.com/Siriling/5G-Modem-Support.git:fibocom_MHI"
+            "github.com/kiddin9/kwrt-packages.git"
+            "github.com/Siriling/5G-Modem-Support.git:fibocom_MHI"
           )
 
           # 克隆或拉取每个仓库
@@ -48,8 +48,7 @@ jobs:
               cd ..
             else
               echo "Cloning $repo_name..."
-              # 处理 URL，确保格式正确
-              access_repo_url="https://${{ secrets.GITHUB_TOKEN }}@${repo_url#https://github.com/}"
+              access_repo_url="https://x-access-token:${{ secrets.GITHUB_TOKEN }}@$repo_url"
               echo "Cloning from $access_repo_url"
               git clone "$access_repo_url" "$repo_name"
               cd "$repo_name"
@@ -63,13 +62,13 @@ jobs:
           done
 
           # 同步所有仓库到一个目标仓库
-          target_repo="https://github.com/t96mytell/openwrt-packages-23.05.git"  # 替换为目标仓库
+          target_repo="github.com/t96mytell/openwrt-packages-23.05.git"  # 替换为目标仓库
           target_repo_name=$(basename "$target_repo" .git)
           if [ -d "$target_repo_name" ]; then
             cd "$target_repo_name"
             git pull origin main
           else
-            access_target_repo_url="https://${{ secrets.GITHUB_TOKEN }}@${target_repo#https://github.com/}"
+            access_target_repo_url="https://x-access-token:${{ secrets.GITHUB_TOKEN }}@$target_repo"
             echo "Cloning from $access_target_repo_url"
             git clone "$access_target_repo_url" "$target_repo_name"
             cd "$target_repo_name"
