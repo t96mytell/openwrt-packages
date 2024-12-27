@@ -62,7 +62,7 @@ jobs:
           done
 
           # 同步所有仓库到一个目标仓库
-          target_repo="github.com/t96mytell/openwrt-packages-23.05.git"  # 替换为目标仓库
+          target_repo="github.com/t96mytell/openwrt-packages.git"  # 替换为目标仓库
           target_repo_name=$(basename "$target_repo" .git)
           if [ -d "$target_repo_name" ]; then
             cd "$target_repo_name"
