@@ -31,7 +31,7 @@ jobs:
           # 仓库列表
           repos=(
             "github.com/kiddin9/kwrt-packages.git"
-            #"github.com/Siriling/5G-Modem-Support.git:fibocom_MHI"
+           # "github.com/Siriling/5G-Modem-Support.git:fibocom_MHI"
           )
 
           # 克隆或拉取每个仓库
@@ -86,7 +86,7 @@ jobs:
 
             if [ -n "$repo_path" ]; then
               rsync -av --progress "../$repo_name/$repo_path/" "$repo_path/"
-              git add -f "$repo_path"
+              git add "$repo_path"
             else
               git remote add "$repo_name" "../$repo_name"
               git fetch "$repo_name"
@@ -95,8 +95,6 @@ jobs:
             fi
           done
 
-          # 执行最终的提交和推送
-          git commit -m "同步上游仓库的更改"
           git push origin main --force
 
   cleanup:
