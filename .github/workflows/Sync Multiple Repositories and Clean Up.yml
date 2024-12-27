@@ -95,7 +95,7 @@ jobs:
             fi
           done
 
-          git push origin main --force
+          git push origin main
 
   cleanup:
     runs-on: ubuntu-latest
