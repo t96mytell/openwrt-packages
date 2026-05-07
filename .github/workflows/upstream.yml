@@ -281,7 +281,7 @@ jobs:
             luci-app-easymesh:luci-app-easymesh,\
             luci-app-mosdns:luci-app-mosdns,\
             mosdns:mosdns,\
-            luci-app-openvpn-client"
+            luci-app-openvpn-client:luci-app-openvpn-client"
 
           # 同步fw876/helloworld
           sync_repo "github.com/fw876/helloworld.git" "dev" "tmp_helloworld" \
