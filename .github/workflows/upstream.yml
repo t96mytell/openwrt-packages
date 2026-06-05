@@ -299,7 +299,7 @@ jobs:
 
           # 同步Openwrt-Passwall/openwrt-passwall-packages
           sync_repo "github.com/Openwrt-Passwall/openwrt-passwall-packages.git" "main" "tmp_openwrt-passwall-packages" \
-            "trojan-plus:trojan-plus"
+            ""
 
           # 同步Openwrt-Passwall/openwrt-passwall
           sync_repo "github.com/Openwrt-Passwall/openwrt-passwall.git" "main" "tmp_openwrt_passwall" \
