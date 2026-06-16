@@ -261,7 +261,6 @@ jobs:
             simple-obfs:simple-obfs,\
             sing-box:sing-box,\
             ssocks:ssocks,\
-            tcping:tcping,\
             trojan-go:trojan-go,\
             trojan:trojan,\
             tuic-client:tuic-client,\
@@ -287,6 +286,7 @@ jobs:
           sync_repo "github.com/fw876/helloworld.git" "dev" "tmp_helloworld" \
             "shadowsocks-libev:shadowsocks-libev,\
             dns2socks-rust:dns2socks-rust,\
+            tcping:tcping,\
             luci-app-ssr-plus:luci-app-ssr-plus"
             
           # 同步immortalwrt/homeproxy
