@@ -24,7 +24,7 @@ include $(INCLUDE_DIR)/package.mk
 include $(TOPDIR)/feeds/packages/lang/golang/golang-package.mk
 
 EMPTY:=
-SPACE:= $(EMPTY) $(EMPTY)
+SPACE:=$(EMPTY) $(EMPTY)
 ARCH_DEPENDS:=@($(subst $(SPACE),||,$(strip $(filter-out mips mips64 mipsel mips64el,$(subst ||,$(SPACE),$(patsubst @(%),%,$(GO_ARCH_DEPENDS)))))))
 
 define Package/docker
