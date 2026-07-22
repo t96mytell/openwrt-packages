@@ -280,6 +280,7 @@ jobs:
             luci-app-easymesh:luci-app-easymesh,\
             luci-app-mosdns:luci-app-mosdns,\
             mosdns:mosdns,\
+            luci-app-openclash:luci-app-openclash,\
             luci-app-openvpn-client:luci-app-openvpn-client"
 
           # 同步fw876/helloworld
@@ -295,7 +296,7 @@ jobs:
            
           # 同步vernesong/OpenClash
           sync_repo "github.com/vernesong/OpenClash.git" "master" "tmp_OpenClash" \
-           "luci-app-openclash:luci-app-openclash"
+           ""
 
           # 同步Openwrt-Passwall/openwrt-passwall-packages
           sync_repo "github.com/Openwrt-Passwall/openwrt-passwall-packages.git" "main" "tmp_openwrt-passwall-packages" \
