@@ -247,8 +247,6 @@ jobs:
             gn:gn,\
             hysteria:hysteria,\
             ipt2socks:ipt2socks,\
-            luci-app-fchomo:luci-app-fchomo,\
-            luci-app-nikki:luci-app-nikki,\
             microsocks:microsocks,\
             mihomo:mihomo,\
             naiveproxy:naiveproxy,\
@@ -271,7 +269,10 @@ jobs:
             v2raya:v2raya,\
             xray-core:xray-core,\
             xray-plugin:xray-plugin,\
-            geoview:geoview"
+            geoview:geoview,\
+            luci-app-fchomo:luci-app-fchomo,\
+            luci-app-nikki:luci-app-nikki,\
+            luci-app-openclash:luci-app-openclash"
 
           # 同步kenzok8/small-package
           sync_repo "github.com/kenzok8/small-package.git" "main" "tmp_small-package" \
@@ -295,7 +296,7 @@ jobs:
            
           # 同步vernesong/OpenClash
           sync_repo "github.com/vernesong/OpenClash.git" "master" "tmp_OpenClash" \
-           "luci-app-openclash:luci-app-openclash"
+           ""
 
           # 同步Openwrt-Passwall/openwrt-passwall-packages
           sync_repo "github.com/Openwrt-Passwall/openwrt-passwall-packages.git" "main" "tmp_openwrt-passwall-packages" \
