@@ -197,6 +197,8 @@ jobs:
           # 同步openwrt/packages
           sync_repo "github.com/openwrt/packages.git" "master" "tmp_openwrt-packages" \
             "net/keepalived:keepalived,\
+            net/batctl:batctl,\
+            net/batman-adv:batman-adv,\
             utils/runc:runc,\
             utils/tini:tini,\
             utils/containerd:containerd,\
