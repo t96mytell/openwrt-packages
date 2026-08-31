@@ -3,6 +3,24 @@ on:
   workflow_dispatch: # 手动触发
   schedule:
     - cron: '0 */3 * * *' # 每3小时自动触发一次
+    
+    inputs:
+      add_fuse_overlayfs:
+        description: 'Add fuse-overlayfs to dockerd/Makefile dependencies'
+        required: false
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+      add_cgroupfs_mount_config:
+        description: 'Add cgroupfs-mount to dockerd/Config.in DOCKER_CGROUP_OPTIONS'
+        required: false
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
 
 jobs:
   sync-and-merge:
@@ -397,6 +415,7 @@ jobs:
           # 初始化报告变量
           REPORT=""
           MAKEFILE="dockerd/Makefile"
+          CONFIG_IN="dockerd/Config.in"
 
           # 定义变量
           DOCKER_PKG_VERSION="29.7.2"
@@ -483,36 +502,35 @@ jobs:
             REPORT+="跳过：未找到 +ca-bundle 依赖项\n"
           fi
 
-          # 步骤 : 添加额外依赖项
-          echo "步骤 : 添加额外依赖项"
-
-          if grep -q '+fuse-overlayfs' "$MAKEFILE"; then
-            REPORT+="跳过：依赖项已存在\n"
-          else
-            # 先确认锚点是否存在
-            if grep -q '+uci-firewall' "$MAKEFILE"; then
-              tmpfile=$(mktemp)
-              awk '
-                /\+uci-firewall/ {
-                  sub(/[ \t]*\\?[ \t]*$/, "", $0)
-                  print $0 " \\"
-                  print "\t+cgroupfs-mount \\"
-                  print "\t+fuse-overlayfs \\"
-                  print "\t+kmod-vxlan +kmod-macvlan +kmod-dummy +kmod-crypto-gcm +kmod-crypto-seqiv +kmod-crypto-ghash \\"
-                  print "\t+kmod-ipsec +kmod-nf-nathelper +kmod-nf-nathelper-extra"
-                  next
-                }
-                { print }
-              ' "$MAKEFILE" > "$tmpfile" && mv "$tmpfile" "$MAKEFILE"
-              
-              if grep -q '+fuse-overlayfs' "$MAKEFILE"; then
-                REPORT+="已添加额外依赖项\n"
-              else
-                REPORT+="添加额外依赖项失败：插入后未找到新增依赖\n"
-              fi
+          # 步骤 : 添加 fuse-overlayfs 依赖项（受inputs输入控制）
+          echo "步骤 : 添加 fuse-overlayfs 依赖项"
+          if [ "${{ inputs.add_fuse_overlayfs }}" = "true" ]; then
+            if grep -q '+fuse-overlayfs' "$MAKEFILE"; then
+              REPORT+="跳过：fuse-overlayfs 已存在\n"
             else
-              REPORT+="跳过：未找到依赖项锚点 +uci-firewall\n"
+              if grep -q '+uci-firewall' "$MAKEFILE"; then
+                tmpfile=$(mktemp)
+                awk '
+                  /\+uci-firewall/ {
+                    sub(/[ \t]*\\?[ \t]*$/, "", $0)
+                    print $0 " \\"
+                    print "\t+fuse-overlayfs"
+                    next
+                  }
+                  { print }
+                ' "$MAKEFILE" > "$tmpfile" && mv "$tmpfile" "$MAKEFILE"
+                
+                if grep -q '+fuse-overlayfs' "$MAKEFILE"; then
+                  REPORT+="已添加 fuse-overlayfs\n"
+                else
+                  REPORT+="添加 fuse-overlayfs 失败\n"
+                fi
+              else
+                REPORT+="跳过：未找到依赖项锚点 +uci-firewall\n"
+              fi
             fi
+          else
+            REPORT+="已禁用：跳过添加 fuse-overlayfs\n"
           fi
 
           # 步骤 : 修改依赖检查路径
@@ -556,7 +574,6 @@ jobs:
             fi
           fi
 
-
           # 步骤 : 添加 UCI 默认配置（在安装段中插入）
           echo "步骤 : 添加 UCI 默认配置"
           INSTALL_ANCHOR='$(INSTALL_BIN) $(PKG_BUILD_DIR)/bundles/binary-daemon/docker-proxy $(1)/usr/bin/'
@@ -595,13 +612,50 @@ jobs:
             fi
           done
 
+          # 步骤 : 添加 cgroupfs-mount 到 Config.in（受inputs输入控制）
+          echo "步骤 : 添加 cgroupfs-mount 到 Config.in"
+          if [ "${{ inputs.add_cgroupfs_mount_config }}" = "true" ]; then
+            if [ ! -f "$CONFIG_IN" ]; then
+              REPORT+="跳过：Config.in 文件不存在\n"
+            elif grep -q 'select PACKAGE_cgroupfs-mount' "$CONFIG_IN"; then
+              REPORT+="跳过：cgroupfs-mount 已在 Config.in 中\n"
+            elif grep -q 'config DOCKER_CGROUP_OPTIONS' "$CONFIG_IN"; then
+              tmpfile=$(mktemp)
+              awk '
+                /config DOCKER_CGROUP_OPTIONS/ {
+                  print
+                  getline; print
+                  getline; print
+                  getline; print
+                  getline; print
+                  print "\tselect PACKAGE_cgroupfs-mount"
+                  next
+                }
+                { print }
+              ' "$CONFIG_IN" > "$tmpfile" && mv "$tmpfile" "$CONFIG_IN"
+              
+              if grep -q 'select PACKAGE_cgroupfs-mount' "$CONFIG_IN"; then
+                REPORT+="已添加 cgroupfs-mount select 到 Config.in\n"
+              else
+                REPORT+="添加 cgroupfs-mount 失败\n"
+              fi
+            else
+              REPORT+="跳过：未找到 DOCKER_CGROUP_OPTIONS 配置\n"
+            fi
+          else
+            REPORT+="已禁用：跳过添加 cgroupfs-mount 到 Config.in\n"
+          fi
+
           # 最终报告
           echo -e "\n===== 合并操作报告 ====="
           echo -e "$REPORT"
 
-          # 检查 UCI 配置文件是否存在
+          # 检查文件是否存在
           if [ ! -f "./files/dockerd.uci-defaults" ]; then
             echo "警告: ./files/dockerd.uci-defaults 文件不存在，UCI 配置可能无法正常工作"
+          fi
+          if [ ! -f "$CONFIG_IN" ]; then
+            echo "警告: Config.in 文件不存在，部分配置可能无法正常工作"
           fi
 
       # Step 5: 自定义 Docker CLI 包
