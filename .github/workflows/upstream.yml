@@ -1,9 +1,6 @@
 name: Sync and Merge Upstream Repositories
 on:
-  workflow_dispatch: # 手动触发
-  schedule:
-    - cron: '0 */3 * * *' # 每3小时自动触发一次
-    
+  workflow_dispatch: # 手动触发    
     inputs:
       add_fuse_overlayfs:
         description: 'Add fuse-overlayfs to dockerd/Makefile dependencies'
@@ -22,6 +19,9 @@ on:
           - 'true'
           - 'false'
 
+  schedule:
+    - cron: '0 */3 * * *' # 每3小时自动触发一次
+    
 jobs:
   sync-and-merge:
     runs-on: ubuntu-latest
