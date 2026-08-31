@@ -12,6 +12,7 @@ config DOCKER_CGROUP_OPTIONS
 	default n
 	depends on PACKAGE_dockerd
 	select KERNEL_CGROUP_DEVICE
+	select PACKAGE_cgroupfs-mount
 	select KERNEL_CGROUP_FREEZER
 	select KERNEL_NET_CLS_CGROUP
 	select KERNEL_CGROUP_NET_PRIO
