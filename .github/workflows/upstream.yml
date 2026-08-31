@@ -514,12 +514,10 @@ jobs:
               awk '
                 /config DOCKER_CGROUP_OPTIONS/ {
                   print
-                  getline; print
-                  getline; print
-                  getline; print
-                  getline; print
-                  getline; print
-                  getline; print
+                  for (i = 0; i < 7; i++) {
+                    getline
+                    print
+                  }
                   print "\tselect PACKAGE_cgroupfs-mount"
                   next
                 }
