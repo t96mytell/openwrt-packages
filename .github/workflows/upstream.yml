@@ -515,33 +515,6 @@ jobs:
             REPORT+="跳过：未找到 DOCKER_CGROUP_OPTIONS 配置\n"
           fi
 
-          # 步骤 : 添加 fuse-overlayfs 依赖项
-          echo "步骤 : 添加 fuse-overlayfs 依赖项"
-          if grep -q '+fuse-overlayfs' "$MAKEFILE"; then
-            REPORT+="跳过：fuse-overlayfs 已存在\n"
-          else
-            if grep -q '+uci-firewall' "$MAKEFILE"; then
-              tmpfile=$(mktemp)
-              awk '
-                /\+uci-firewall/ {
-                  sub(/[ \t]*\\?[ \t]*$/, "", $0)
-                  print $0 " \\"
-                  print "\t+fuse-overlayfs"
-                  next
-                }
-                { print }
-              ' "$MAKEFILE" > "$tmpfile" && mv "$tmpfile" "$MAKEFILE"
-              
-              if grep -q '+fuse-overlayfs' "$MAKEFILE"; then
-                REPORT+="已添加 fuse-overlayfs\n"
-              else
-                REPORT+="添加 fuse-overlayfs 失败\n"
-              fi
-            else
-              REPORT+="跳过：未找到依赖项锚点 +uci-firewall\n"
-            fi
-          fi
-
           # 步骤 : 修改依赖检查路径
           echo "步骤 : 修改依赖检查路径"
           PATH_CHANGED=0
