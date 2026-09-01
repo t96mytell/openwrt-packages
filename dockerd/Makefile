@@ -50,8 +50,7 @@ define Package/dockerd
     +kmod-nf-ipvs \
     +kmod-veth \
     +tini \
-    +uci-firewall \
-	+fuse-overlayfs
+    +uci-firewall
   USERID:=docker:docker
   MENU:=1
 endef
