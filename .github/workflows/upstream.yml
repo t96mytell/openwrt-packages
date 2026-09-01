@@ -1,24 +1,6 @@
 name: Sync and Merge Upstream Repositories
 on:
   workflow_dispatch: # 手动触发    
-    inputs:
-      add_fuse_overlayfs:
-        description: 'Add fuse-overlayfs to dockerd/Makefile dependencies'
-        required: false
-        default: 'true'
-        type: choice
-        options:
-          - 'true'
-          - 'false'
-      add_cgroupfs_mount_config:
-        description: 'Add cgroupfs-mount to dockerd/Config.in DOCKER_CGROUP_OPTIONS'
-        required: false
-        default: 'true'
-        type: choice
-        options:
-          - 'true'
-          - 'false'
-
   schedule:
     - cron: '0 */3 * * *' # 每3小时自动触发一次
     
@@ -73,6 +55,7 @@ jobs:
 
       - name: Make git-short-commit.sh executable
         run: chmod +x .github/scripts/git-short-commit.sh
+
       
       # Step 1: 支持无顶层目录仓库和通用嵌套目录的同步方案
       - name: Sync from upstream repositories
@@ -502,69 +485,61 @@ jobs:
             REPORT+="跳过：未找到 +ca-bundle 依赖项\n"
           fi
 
-          # 步骤 : 添加 cgroupfs-mount 到 Config.in（受inputs输入控制）
+          # 步骤 : 添加 cgroupfs-mount 到 Config.in
           echo "步骤 : 添加 cgroupfs-mount 到 Config.in"
-          if [ "${{ inputs.add_cgroupfs_mount_config }}" = "true" ]; then
-            if [ ! -f "$CONFIG_IN" ]; then
-              REPORT+="跳过：Config.in 文件不存在\n"
-            elif grep -q 'select PACKAGE_cgroupfs-mount' "$CONFIG_IN"; then
-              REPORT+="跳过：cgroupfs-mount 已在 Config.in 中\n"
-            elif grep -q 'config DOCKER_CGROUP_OPTIONS' "$CONFIG_IN"; then
+          if [ ! -f "$CONFIG_IN" ]; then
+            REPORT+="跳过：Config.in 文件不存在\n"
+          elif grep -q 'select PACKAGE_cgroupfs-mount' "$CONFIG_IN"; then
+            REPORT+="跳过：cgroupfs-mount 已在 Config.in 中\n"
+          elif grep -q 'config DOCKER_CGROUP_OPTIONS' "$CONFIG_IN"; then
+            tmpfile=$(mktemp)
+            awk '
+              /config DOCKER_CGROUP_OPTIONS/ {
+                print
+                for (i = 0; i < 7; i++) {
+                  getline
+                  print
+                }
+                print "\tselect PACKAGE_cgroupfs-mount"
+                next
+              }
+              { print }
+            ' "$CONFIG_IN" > "$tmpfile" && mv "$tmpfile" "$CONFIG_IN"
+            
+            if grep -q 'select PACKAGE_cgroupfs-mount' "$CONFIG_IN"; then
+              REPORT+="已添加 cgroupfs-mount select 到 Config.in\n"
+            else
+              REPORT+="添加 cgroupfs-mount 失败\n"
+            fi
+          else
+            REPORT+="跳过：未找到 DOCKER_CGROUP_OPTIONS 配置\n"
+          fi
+
+          # 步骤 : 添加 fuse-overlayfs 依赖项
+          echo "步骤 : 添加 fuse-overlayfs 依赖项"
+          if grep -q '+fuse-overlayfs' "$MAKEFILE"; then
+            REPORT+="跳过：fuse-overlayfs 已存在\n"
+          else
+            if grep -q '+uci-firewall' "$MAKEFILE"; then
               tmpfile=$(mktemp)
               awk '
-                /config DOCKER_CGROUP_OPTIONS/ {
-                  print
-                  for (i = 0; i < 7; i++) {
-                    getline
-                    print
-                  }
-                  print "\tselect PACKAGE_cgroupfs-mount"
+                /\+uci-firewall/ {
+                  sub(/[ \t]*\\?[ \t]*$/, "", $0)
+                  print $0 " \\"
+                  print "\t+fuse-overlayfs"
                   next
                 }
                 { print }
-              ' "$CONFIG_IN" > "$tmpfile" && mv "$tmpfile" "$CONFIG_IN"
+              ' "$MAKEFILE" > "$tmpfile" && mv "$tmpfile" "$MAKEFILE"
               
-              if grep -q 'select PACKAGE_cgroupfs-mount' "$CONFIG_IN"; then
-                REPORT+="已添加 cgroupfs-mount select 到 Config.in\n"
+              if grep -q '+fuse-overlayfs' "$MAKEFILE"; then
+                REPORT+="已添加 fuse-overlayfs\n"
               else
-                REPORT+="添加 cgroupfs-mount 失败\n"
+                REPORT+="添加 fuse-overlayfs 失败\n"
               fi
             else
-              REPORT+="跳过：未找到 DOCKER_CGROUP_OPTIONS 配置\n"
+              REPORT+="跳过：未找到依赖项锚点 +uci-firewall\n"
             fi
-          else
-            REPORT+="已禁用：跳过添加 cgroupfs-mount 到 Config.in\n"
-          fi
-
-          # 步骤 : 添加 fuse-overlayfs 依赖项（受inputs输入控制）
-          echo "步骤 : 添加 fuse-overlayfs 依赖项"
-          if [ "${{ inputs.add_fuse_overlayfs }}" = "true" ]; then
-            if grep -q '+fuse-overlayfs' "$MAKEFILE"; then
-              REPORT+="跳过：fuse-overlayfs 已存在\n"
-            else
-              if grep -q '+uci-firewall' "$MAKEFILE"; then
-                tmpfile=$(mktemp)
-                awk '
-                  /\+uci-firewall/ {
-                    sub(/[ \t]*\\?[ \t]*$/, "", $0)
-                    print $0 " \\"
-                    print "\t+fuse-overlayfs"
-                    next
-                  }
-                  { print }
-                ' "$MAKEFILE" > "$tmpfile" && mv "$tmpfile" "$MAKEFILE"
-                
-                if grep -q '+fuse-overlayfs' "$MAKEFILE"; then
-                  REPORT+="已添加 fuse-overlayfs\n"
-                else
-                  REPORT+="添加 fuse-overlayfs 失败\n"
-                fi
-              else
-                REPORT+="跳过：未找到依赖项锚点 +uci-firewall\n"
-              fi
-            fi
-          else
-            REPORT+="已禁用：跳过添加 fuse-overlayfs\n"
           fi
 
           # 步骤 : 修改依赖检查路径
