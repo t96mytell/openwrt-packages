@@ -282,6 +282,7 @@ int qmodem_voip_poll_active(struct qmodem_voip_call *call,
 {
 	if (!call || !call->enabled ||
 	    (call->state != QMODEM_VOIP_OUTGOING_SETUP &&
+	     call->state != QMODEM_VOIP_INCOMING_RINGING &&
 	     call->state != QMODEM_VOIP_EARLY_MEDIA &&
 	     call->state != QMODEM_VOIP_ACTIVE &&
 	     call->state != QMODEM_VOIP_TERMINATING) ||
@@ -409,6 +410,7 @@ int qmodem_voip_line(struct qmodem_voip_call *call, const char *port,
 	    correlation == QMODEM_VOIP_CORR_TERMINAL && command_id != 0 &&
 	    (call->reconcile_command_id == 0 || command_id == call->reconcile_command_id)) {
 		if ((call->state == QMODEM_VOIP_OUTGOING_SETUP ||
+		     call->state == QMODEM_VOIP_INCOMING_RINGING ||
 		     call->state == QMODEM_VOIP_EARLY_MEDIA ||
 		     call->state == QMODEM_VOIP_ACTIVE) &&
 		    ++call->reconcile_voice_misses < 2U) {
@@ -419,6 +421,7 @@ int qmodem_voip_line(struct qmodem_voip_call *call, const char *port,
 			return 0;
 		}
 		if ((call->state != QMODEM_VOIP_OUTGOING_SETUP &&
+		     call->state != QMODEM_VOIP_INCOMING_RINGING &&
 		     call->state != QMODEM_VOIP_EARLY_MEDIA &&
 		     call->state != QMODEM_VOIP_ACTIVE) ||
 		    call->reconcile_voice_misses >= 2U)
@@ -456,6 +459,13 @@ int qmodem_voip_line(struct qmodem_voip_call *call, const char *port,
 		}
 		if (call->reconcile_pending && !correlated_reconcile)
 			return 0;
+		/* Some Quectel firmware emits several CLCC records for one snapshot.
+		 * The records in auxiliary mode can have an empty number, while the
+		 * actual cellular leg (for example stat=4, mode=0) carries the caller
+		 * number.  Preserve the number from that record before publishing the
+		 * incoming state. */
+		if ((status == 4 || status == 5) && !empty_number)
+			(void)clip_number(call, raw);
 		if (call->state == QMODEM_VOIP_TERMINATING) {
 			call->reconcile_pending = 0;
 			call->reconcile_command_id = 0;

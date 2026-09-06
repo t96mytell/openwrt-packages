@@ -594,7 +594,13 @@ static int action_call(struct ubus_context *ubus,
 		if (!journal_enabled() || run_safety("recover", 1) != 0)
 			return qmodem_voip_reply_status(ubus, request, UBUS_STATUS_NOT_SUPPORTED,
 				"media_not_ready", "modem PCM forwarding could not be armed");
+		/* Incoming ringing can leave a partial serial frame queued before ATA.
+		 * Match originate preparation so playback starts on a clean USB transfer
+		 * boundary when the modem opens the bidirectional PCM stream. */
+		qmodem_voip_serial_prepare_call(&app->media);
 		result = qmodem_voip_answer(&app->call, endpoint, qmodem_voip_issue_at, app);
+		if (result != 0)
+			qmodem_voip_cancel_serial_prepare();
 	} else if (strcmp(action, "reject") == 0) {
 		result = qmodem_voip_reject(&app->call, endpoint, qmodem_voip_issue_at, app);
 	} else {
@@ -953,11 +959,13 @@ void qmodem_voip_publish_event(const struct qmodem_voip_call *call,
 	    (call->state == QMODEM_VOIP_EARLY_MEDIA ||
 	     call->state == QMODEM_VOIP_ACTIVE))
 		qmodem_voip_serial_set_attached(&app->media, 1);
-	if (call->state == QMODEM_VOIP_OUTGOING_SETUP ||
-	    call->state == QMODEM_VOIP_INCOMING_RINGING ||
-	    call->state == QMODEM_VOIP_EARLY_MEDIA ||
-	    call->state == QMODEM_VOIP_ACTIVE ||
-	    call->state == QMODEM_VOIP_TERMINATING) {
+	/* A normal call must not schedule a voice-server restart.  On this
+	 * firmware the dependency restart can take over a minute; arming it from
+	 * ringing/active/terminating therefore makes the next call fail with
+	 * "modem voice service is recovering" even though the previous call ended
+	 * cleanly.  Recovery is reserved for a media safety failure, which moves
+	 * the call into FAULT and is followed by the normal idle transition. */
+	if (call->state == QMODEM_VOIP_FAULT) {
 		if (!app->voice_restart_needed)
 			syslog(LOG_INFO, "voice-server recovery armed by call state %s",
 				qmodem_voip_state_name(call->state));
@@ -1068,6 +1076,7 @@ void qmodem_voip_call_timer(struct uloop_timeout *timeout)
 	}
 	if (app->call.enabled &&
 	    (app->call.state == QMODEM_VOIP_OUTGOING_SETUP ||
+	     app->call.state == QMODEM_VOIP_INCOMING_RINGING ||
 	     app->call.state == QMODEM_VOIP_EARLY_MEDIA)) {
 		app->command_failed = 0;
 		(void)qmodem_voip_poll_active(&app->call, qmodem_voip_issue_at, app);
