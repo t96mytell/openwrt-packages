@@ -193,7 +193,7 @@ jobs:
           
           # 同步FUjr/QModem
           sync_repo "github.com/FUjr/QModem.git" "main" "tmp_QModem" \
-            ""
+            ".:QModem"
 
           # 同步openwrt/packages
           sync_repo "github.com/openwrt/packages.git" "master" "tmp_openwrt-packages" \
