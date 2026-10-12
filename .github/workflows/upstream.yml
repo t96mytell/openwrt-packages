@@ -802,7 +802,7 @@ jobs:
         run: |
           # 初始化报告变量
           REPORT=""
-          MAKEFILE="Makefile"
+          MAKEFILE="dae/Makefile"
 
           # 定义变量
           DAE_PKG_VERSION="2.1.1"
@@ -853,7 +853,7 @@ jobs:
         run: |
           # 初始化报告变量
           REPORT=""
-          MAKEFILE="Makefile"
+          MAKEFILE="daed/Makefile"
 
           # 定义变量
           DAED_PKG_VERSION="2.1.1"
