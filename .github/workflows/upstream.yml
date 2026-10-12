@@ -230,7 +230,9 @@ jobs:
           # 同步immortalwrt/packages
           sync_repo "github.com/immortalwrt/packages.git" "master" "tmp_immortalwrt-packages" \
             "lang/lua/lua-neturl:lua-neturl,\
-             net/rtp2httpd:rtp2httpd"
+             net/rtp2httpd:rtp2httpd,\
+             net/dae:dae,\
+             net/daed:daed"
 
           # 同步immortalwrt/luci
           sync_repo "github.com/immortalwrt/luci.git" "master" "tmp_immortalwrt-luci" \
@@ -401,7 +403,7 @@ jobs:
           CONFIG_IN="dockerd/Config.in"
 
           # 定义变量
-          DOCKER_PKG_VERSION="29.7.2"
+          DOCKER_PKG_VERSION="29.9.0"
           DOCKER_PKG_RELEASE="1"
           PKG_GIT_URL="github.com/moby/moby"
           PKG_GIT_REF="docker-v${DOCKER_PKG_VERSION}"
@@ -743,7 +745,7 @@ jobs:
           MAKEFILE="runc/Makefile"
 
           # 定义变量
-          RUNC_PKG_VERSION="1.4.3"
+          RUNC_PKG_VERSION="1.5.2"
           RUNC_PKG_RELEASE="1"
           PKG_GIT_URL="github.com/opencontainers/runc"
           PKG_GIT_REF="v$RUNC_PKG_VERSION"
@@ -789,6 +791,108 @@ jobs:
             REPORT+="已更新 PKG_GIT_SHORT_COMMIT\n"
           else
             REPORT+="跳过：未找到 PKG_GIT_SHORT_COMMIT 变量\n"
+          fi
+
+          # 最终报告
+          echo -e "\n===== 合并操作报告 ====="
+          echo -e "$REPORT"
+
+      # Step X: 自定义 dae 包
+      - name: Customizing dae package
+        run: |
+          # 初始化报告变量
+          REPORT=""
+          MAKEFILE="Makefile"
+
+          # 定义变量
+          DAE_PKG_VERSION="2.1.1"
+          DAE_PKG_RELEASE="1"
+          PKG_GIT_URL="github.com/daeuniverse/dae"
+          PKG_GIT_REF="v$DAE_PKG_VERSION"
+          PKG_SOURCE_URL="https://github.com/daeuniverse/dae/releases/download/$PKG_GIT_REF/dae-full-src.zip?"
+
+          # 下载源码 zip
+          TMP_DIR=$(mktemp -d)
+          wget -O "$TMP_DIR/source.zip" "$PKG_SOURCE_URL"
+
+          # 计算 SHA256
+          DAE_PKG_HASH=$(sha256sum "$TMP_DIR/source.zip" | cut -d' ' -f1)
+
+          # 获取短 commit
+          git clone --depth 1 --branch "$PKG_GIT_REF" "https://$PKG_GIT_URL" "$TMP_DIR/git-src"
+          DAE_PKG_GIT_SHORT_COMMIT=$(git -C "$TMP_DIR/git-src" rev-parse --short HEAD)
+
+          # 清理临时目录
+          rm -rf "$TMP_DIR"
+
+          # 步骤: 替换 PKG_VERSION 和 PKG_RELEASE
+          echo "步骤: 替换 PKG_VERSION 和 PKG_RELEASE"
+          if grep -q "^PKG_VERSION:=" "$MAKEFILE"; then
+            sed -i "s/^PKG_VERSION:=.*/PKG_VERSION:=${DAE_PKG_VERSION}/" "$MAKEFILE"
+            sed -i "s/^PKG_RELEASE:=.*/PKG_RELEASE:=${DAE_PKG_RELEASE}/" "$MAKEFILE"
+            REPORT+="已更新 PKG_VERSION 和 PKG_RELEASE\n"
+          else
+            REPORT+="跳过：未找到 PKG_VERSION 变量\n"
+          fi
+
+          # 步骤: 替换 PKG_HASH
+          echo "步骤: 替换 PKG_HASH"
+          if grep -q "^PKG_HASH:=" "$MAKEFILE"; then
+            sed -i "s/^PKG_HASH:=.*/PKG_HASH:=${DAE_PKG_HASH}/" "$MAKEFILE"
+            REPORT+="已更新 PKG_HASH\n"
+          else
+            REPORT+="跳过：未找到 PKG_HASH 变量\n"
+          fi
+
+          # 最终报告
+          echo -e "\n===== 合并操作报告 ====="
+          echo -e "$REPORT"
+
+      # Step Y: 自定义 daed 包
+      - name: Customizing daed package
+        run: |
+          # 初始化报告变量
+          REPORT=""
+          MAKEFILE="Makefile"
+
+          # 定义变量
+          DAED_PKG_VERSION="2.1.1"
+          DAED_PKG_RELEASE="1"
+          PKG_GIT_URL="github.com/daeuniverse/daed"
+          PKG_GIT_REF="v$DAED_PKG_VERSION"
+          PKG_SOURCE_URL="https://codeload.$PKG_GIT_URL/tar.gz/$PKG_GIT_REF"
+
+          # 下载源码 tarball
+          TMP_DIR=$(mktemp -d)
+          wget -O "$TMP_DIR/source.tar.gz" "$PKG_SOURCE_URL"
+
+          # 计算 SHA256
+          DAED_PKG_MIRROR_HASH=$(sha256sum "$TMP_DIR/source.tar.gz" | cut -d' ' -f1)
+
+          # 获取短 commit
+          git clone --depth 1 --branch "$PKG_GIT_REF" "https://$PKG_GIT_URL" "$TMP_DIR/git-src"
+          DAED_PKG_GIT_SHORT_COMMIT=$(git -C "$TMP_DIR/git-src" rev-parse --short HEAD)
+
+          # 清理临时目录
+          rm -rf "$TMP_DIR"
+
+          # 步骤 : 替换 PKG_VERSION 和 PKG_RELEASE
+          echo "步骤 : 替换 PKG_VERSION 和 PKG_RELEASE"
+          if grep -q "^PKG_VERSION:=" "$MAKEFILE"; then
+            sed -i "s/^PKG_VERSION:=.*/PKG_VERSION:=${DAED_PKG_VERSION}/" "$MAKEFILE"
+            sed -i "s/^PKG_RELEASE:=.*/PKG_RELEASE:=${DAED_PKG_RELEASE}/" "$MAKEFILE"
+            REPORT+="已更新 PKG_VERSION 和 PKG_RELEASE\n"
+          else
+            REPORT+="跳过：未找到 PKG_VERSION 变量\n"
+          fi
+
+          # 步骤 : 替换 PKG_MIRROR_HASH
+          echo "步骤 : 替换 PKG_MIRROR_HASH"
+          if grep -q "^PKG_MIRROR_HASH:=" "$MAKEFILE"; then
+            sed -i "s/^PKG_MIRROR_HASH:=.*/PKG_MIRROR_HASH:=${DAED_PKG_MIRROR_HASH}/" "$MAKEFILE"
+            REPORT+="已更新 PKG_MIRROR_HASH\n"
+          else
+            REPORT+="跳过：未找到 PKG_MIRROR_HASH 变量\n"
           fi
 
           # 最终报告
