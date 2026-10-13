@@ -817,7 +817,7 @@ jobs:
 
           # 计算 SHA256
           DAE_PKG_HASH=$(sha256sum "$TMP_DIR/source.zip" | cut -d' ' -f1)
-          
+
           # 获取短 commit
           git clone --depth 1 --branch "$PKG_GIT_REF" "https://$PKG_GIT_URL" "$TMP_DIR/git-src"
           DAE_PKG_GIT_SHORT_COMMIT=$(git -C "$TMP_DIR/git-src" rev-parse --short HEAD)
@@ -849,7 +849,7 @@ jobs:
           echo -e "$REPORT"
 
 
-      # Step Y: 自定义 daed 包
+# Step Y: 自定义 daed 包
       - name: Customizing daed package
         run: |
           # 初始化报告变量
@@ -861,7 +861,6 @@ jobs:
           DAED_PKG_RELEASE="1"
           PKG_GIT_URL="github.com/daeuniverse/daed"
           PKG_GIT_REF="v${DAED_PKG_VERSION}"
-          PKG_SOURCE_URL="https://codeload.${PKG_GIT_URL}/tar.gz/${PKG_GIT_REF}"
           WEB_URL="https://github.com/daeuniverse/daed/releases/download/${PKG_GIT_REF}/web.zip"
 
           # 验证 Makefile 并创建临时目录
@@ -870,16 +869,7 @@ jobs:
           else
             TMP_DIR=$(mktemp -d)
 
-            # 下载源码并计算 SHA256
-            if wget -q -O "$TMP_DIR/source.tar.gz" "$PKG_SOURCE_URL" &&
-               [ -s "$TMP_DIR/source.tar.gz" ]; then
-              DAED_PKG_MIRROR_HASH=$(sha256sum "$TMP_DIR/source.tar.gz" | cut -d' ' -f1)
-            else
-              DAED_PKG_MIRROR_HASH=""
-              REPORT+="源码下载失败，跳过 PKG_MIRROR_HASH 更新\n"
-            fi
-
-            # 获取短 commit
+            # 获取短 commit（如果后续其他地方需要使用）
             if git clone --depth 1 --branch "$PKG_GIT_REF" \
               "https://${PKG_GIT_URL}" "$TMP_DIR/git-src" >/dev/null 2>&1; then
               DAED_PKG_GIT_SHORT_COMMIT=$(git -C "$TMP_DIR/git-src" rev-parse --short HEAD 2>/dev/null || true)
@@ -915,24 +905,20 @@ jobs:
             REPORT+="未找到 Makefile 或 PKG_VERSION，跳过版本更新\n"
           fi
 
-          # 步骤：更新 PKG_MIRROR_HASH
-          echo "步骤：更新 PKG_MIRROR_HASH"
-          if [ -n "${DAED_PKG_MIRROR_HASH:-}" ] &&
-             [[ "$DAED_PKG_MIRROR_HASH" =~ ^[a-fA-F0-9]{64}$ ]] &&
-             grep -q '^PKG_MIRROR_HASH:=' "$MAKEFILE"; then
-            sed -i "s/^PKG_MIRROR_HASH:=.*/PKG_MIRROR_HASH:=${DAED_PKG_MIRROR_HASH}/" "$MAKEFILE"
-            REPORT+="已更新 PKG_MIRROR_HASH\n"
+          echo "步骤：检查并移除 PKG_MIRROR_HASH"
+          if [ -f "$MAKEFILE" ] && grep -q '^PKG_MIRROR_HASH:=' "$MAKEFILE"; then
+            sed -i '/^PKG_MIRROR_HASH:=.*/d' "$MAKEFILE"
+            REPORT+="已从 Makefile 中移除 PKG_MIRROR_HASH\n"
           else
-            REPORT+="源码哈希无效或未找到 PKG_MIRROR_HASH，跳过更新\n"
+            REPORT+="Makefile 中未找到 PKG_MIRROR_HASH，跳过移除\n"
           fi
 
-          # 步骤：更新 web 文件 HASH
           echo "步骤：更新 web 文件 HASH"
           if [ -n "${DAED_WEB_HASH:-}" ] &&
              [[ "$DAED_WEB_HASH" =~ ^[a-fA-F0-9]{64}$ ]] &&
              grep -q '^define Download/daed-web$' "$MAKEFILE"; then
             sed -i \
-              "/^define Download\\/daed-web$/,/^endef$/ s|^[[:space:]]*HASH:=.*|	HASH:=${DAED_WEB_HASH}|" \
+              "/^define Download\\/daed-web$/,/^endef$/ s|^[[:space:]]*HASH:=.*|  HASH:=${DAED_WEB_HASH}|" \
               "$MAKEFILE"
             REPORT+="已更新 web 文件 HASH\n"
           else
@@ -944,7 +930,7 @@ jobs:
             echo -e "\n===== 验证更新结果 ====="
             grep '^PKG_VERSION:=' "$MAKEFILE" || true
             grep '^PKG_RELEASE:=' "$MAKEFILE" || true
-            grep '^PKG_MIRROR_HASH:=' "$MAKEFILE" || true
+            grep '^PKG_MIRROR_HASH:=' "$MAKEFILE" && echo "警告：PKG_MIRROR_HASH 仍然存在！" || echo "验证通过：PKG_MIRROR_HASH 已成功移除"
             sed -n '/^define Download\/daed-web$/,/^endef$/p' "$MAKEFILE" | grep -E '^[[:space:]]*HASH:=' || true
           fi
 
