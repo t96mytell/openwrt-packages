@@ -913,12 +913,13 @@ jobs:
             REPORT+="Makefile 中未找到 PKG_MIRROR_HASH，跳过移除\n"
           fi
 
+
           echo "步骤：更新 web 文件 HASH"
           if [ -n "${DAED_WEB_HASH:-}" ] &&
              [[ "$DAED_WEB_HASH" =~ ^[a-fA-F0-9]{64}$ ]] &&
              grep -q '^define Download/daed-web$' "$MAKEFILE"; then
             sed -i \
-              "/^define Download\\/daed-web$/,/^endef$/ s|^[[:space:]]*HASH:=.*|  HASH:=${DAED_WEB_HASH}|" \
+              "/^define Download\\/daed-web$/,/^endef$/ s|^[[:space:]]*HASH:=.*|    HASH:=${DAED_WEB_HASH}|" \
               "$MAKEFILE"
             REPORT+="已更新 web 文件 HASH\n"
           else
